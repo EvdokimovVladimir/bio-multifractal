@@ -1,43 +1,44 @@
-# Функция для расчета значений для построения мультифрактального спектра
-# Первый аргумент (v) - вектор, содержащий численности по видам
-# Второй аргумент (Qmin) - начальное значение q (необязательный)
-# Третий аргумент (Qmax) - конечное значение q (необязательный)
-# Четвертый аргумент (step) - шаг изменения q (необязательный)
-# Возвращает лист, состоящий из 2х дата фреймов:
-# vars - содержит в себе следующие переменные:
-#   q - порядки моментов
-#   M - моменты распределения особей (фитомассы) по видам
-#   t - скейлинговые показатели
-#   D - обобщенные размерности Реньи
-# mfs - содержит в себе следующие переменные:
-#   a - индексы сингулярности
-#   f - спектр сингулярностей
-mfa <- function(v, Qmin = -7, Qmax = 5, step = 0.01){ 
-  v <- v[v != 0]
-  p <- v/sum(v) # переходим к относительным частотам
-  q <- seq(Qmin, Qmax, step) # создаем вектор порядков моментов распределения особей (фитомассы) по видам
+# Function for calculating a multifractal spectrum
+# Input:
+#   v - vector containing numbers by species
+#   Qmin - initial value of q (optional)
+#   Qmax - final value of q (optional)
+#   step - step of q (optional)
+# Return: list consisting of 2 dataframes
+# vars - contains the following variables:
+#  q - orders of moments
+#  M - moments of distribution of individuals by species
+#  t - scale indicators
+#  D - generalized Renyi dimensions
+# mfs - contains the following variables:
+#  a - singularity indexes
+#  f - the spectrum of singularities
+MFS <- function(v, Qmin = -7, Qmax = 5, step = 0.01){ 
+  v <- v[v != 0] # remove zero values
+  p <- v/sum(v) # relative frequencies
+  q <- seq(Qmin, Qmax, step) # vector of orders of moments of distribution of individuals by species
   
-  M <- sapply(q, FUN = function(i) sum(p^i)) # считаем моменты
-  t <- log(M)/log(sum(v)) # рассчитываем скейлинговые показатели
-  D <- t/(1 - q) # рассчитываем обобщенные размерности Реньи
+  M <- sapply(q, FUN = function(i) sum(p^i)) # moments
+  t <- log(M)/log(sum(v)) # scale indicators
+  D <- t/(1 - q) # generalized Renyi dimensions
   
-  a <- (t[1:(length(t) - 1)] - t[2:length(t)])/step # дискретно считаем производную от показателе массы (индексы сингулярности)
-  f <- q[-1]*a + t[-1] # считаем спектр сингулярностей
+  a <- (t[1:(length(t) - 1)] - t[2:length(t)])/step #  discrete derivative of the mass indices (singularity indices)
+  f <- q[-1]*a + t[-1] # spectrum of singularities
   
   return(list(vars = data.frame(q = q, M = M, t = t, D = D), mfs = data.frame(a = a, f = f))) 
 }
 
-# образец рассчета
-mf <- mfa(c(1,1,1,10,10,100,100))
+# calculation sample
+mf <- MFS(c(1,1,1,10,10,100,100))
 
-# построение мультифрактального спектра с помощью библиотеки ggplot2
-library(ggplot2) # подключение библиотеки
+# plotting a multifractal spectrum using the ggplot2 library
+library(ggplot2)
 ggplot(mf$mfs, aes(x = a, y = f)) +
-  geom_line() + # отрисовка линии
-  # geom_point() + # построение точек
-  labs(x = "\u03B1", y = "f(\u03B1)") + # подписи осей
-  theme_bw() # задание темы
-ggsave('plot_mfa.jpeg', width = 10, height = 8) # сохранение изображения в рабочую директорию
+  geom_line() + # line
+  # geom_point() + # dots
+  labs(x = "\u03B1", y = "f(\u03B1)") + # axis labels
+  theme_bw() # theme
+ggsave('plot_mfa.jpeg', width = 10, height = 8) # save image
 
-# построение мультифрактального спектра средствами самого R
+# plotting a multifractal spectrum using R
 plot(f ~ a, data = mf$mfs, type = 'l')
