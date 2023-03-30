@@ -1,22 +1,23 @@
-# подключение необходимых библиотек
+# library for Excel, charts, data tables and strings
 library(xlsx)
 library(ggplot2)
 library(tidyverse)
 library(stringr)
 
-# функция для построения 6 диаграмм:
-# 1) Степенная зависимость накопления видового богатства S от объема выборки N;
-# 2) Степенная зависимость моментов распределения особей по видам Mq от объема выборки N;
-# 3) Нелинейность зависимости скейлинговых показателей t от порядка момента q;
-# 4) Нелинейность обобщенных размерностей реньи Dq от порядка момента q;
-# 5) Инвариантность обобщенных размерностей относительно числа видов и численности сообщества;
-# 6) Мультифрактальный спектр.
-# Все диаграммы сохраняются в рабочую директорию.
-# Первый аргумент (filename) - имя файла с данными.
-# Данные на первом листе в книге (по счету, не по названию)
-# В первой строке - названия видов, 
-# в первом столбце - названия площадок
-# Второй аргумент (Q) - массив значений q для 2 и 5 диаграмм (необязательный)
+# Function for plotting 6 charts:
+# 1) The power dependence of the accumulation of the number of species S on the sample size N;
+# 2) The power dependence of the moments of the distribution by species Mq on the sample size N;
+# 3) The nonlinearity of the dependence of scaling indicators t on the order of the moment q;
+# 4) The nonlinearity of the dependence of generalized Renyi dimensions Dq from the order of the moment q;
+# 5) Invariance of generalized dimensions Dq with respect to the sample size;
+# 6) Multifractal spectrum.
+# All diagrams are saved to the working directory.
+# The first argument (filename) is the name of the data file.
+# Data on the first sheet in the file (by count, not by name)
+# In the first line - the names of species, 
+# in the first column - the names of the sites
+# The second argument (Q) is an array of q values for 2 and 5 diagrams (optional)
+
 MFAF <- function(filename, Q = seq(from = -2, to = 2, by = 1)){
   # загрузка массива
   data <- read.xlsx(filename, sheetIndex = 1) # загрузка массива данных из таблицы
@@ -42,7 +43,8 @@ MFAF <- function(filename, Q = seq(from = -2, to = 2, by = 1)){
   ggplot(df1, aes(x = N, y = S)) +  
     # geom_line() + # отрисовка линии
     geom_point() + # построение точек
-    labs(x = "N", y = "S", title = 'Степенная зависимость накопления видового богатства S от объема выборки N') + # подписи осей
+    labs(x = "N", y = "S", 
+         title = 'Степенная зависимость накопления видового богатства S от объема выборки N') + # подписи осей
     theme_bw() + # задание темы
     scale_x_log10() + # билогарифмический масштаб
     scale_y_log10() 
@@ -79,7 +81,8 @@ MFAF <- function(filename, Q = seq(from = -2, to = 2, by = 1)){
   ggplot(df2, aes(x = N, y = Mq, col = q)) +
     # geom_line() + # отрисовка линии
     geom_point() + # построение точек
-    labs(x = "N", y = "Mq", title = 'Степенная зависимость моментов распределения особей по видам Mq от объема выборки N') + # подписи осей
+    labs(x = "N", y = "Mq", 
+         title = 'Степенная зависимость моментов распределения особей по видам Mq от объема выборки N') + # подписи осей
     theme_bw() + # задание темы
     scale_x_log10() + # билогарифмический масштаб
     scale_y_log10() 
@@ -122,7 +125,8 @@ MFAF <- function(filename, Q = seq(from = -2, to = 2, by = 1)){
   
   ggplot(df3, aes(x = q, y = t)) +
     geom_line() + # отрисовка линии
-    labs(x = "q", y = "t", title = 'Нелинейность зависимости скейлинговых показателей t от порядка момента q') + # подписи осей
+    labs(x = "q", y = "t", 
+         title = 'Нелинейность зависимости скейлинговых показателей t от порядка момента q') + # подписи осей
     theme_bw() # задание темы
   ggsave(paste0('Этап 3 ', filename, '.jpeg'), width = 10, height = 8) # сохранение в файл
   cat('График третьего этапа построен\n\n') # вывод сообщения
@@ -134,7 +138,8 @@ MFAF <- function(filename, Q = seq(from = -2, to = 2, by = 1)){
   # используется данные из датафрейма, полученного на предыдущем шаге
   ggplot(df3[df3$q != 1,], aes(x = q, y = D)) +
     geom_line() + # отрисовка линии
-    labs(x = "q", y = "Dq", title = 'Нелинейность зависимости обобщенных размерностей реньи Dq от порядка момента q') + # подписи осей
+    labs(x = "q", y = "Dq", 
+         title = 'Нелинейность зависимости обобщенных размерностей реньи Dq от порядка момента q') + # подписи осей
     theme_bw() # задание темы
   ggsave(paste0('Этап 4 ', filename, '.jpeg'), width = 10, height = 8) # сохранение в файл
   cat('График четвертого этапа построен\n\n') # вывод сообщения
@@ -162,7 +167,8 @@ MFAF <- function(filename, Q = seq(from = -2, to = 2, by = 1)){
   ggplot(df5, aes(x = N, y = Dq, col = q)) +
     # geom_line() + # отрисовка линии
     geom_point() + # построение точек
-    labs(x = "N", y = "Dq", title = 'Инвариантность обобщенных размерностей относительно числа видов и численности сообщества') + # подписи осей
+    labs(x = "N", y = "Dq", 
+         title = 'Инвариантность обобщенных размерностей относительно числа видов и численности сообщества') + # подписи осей
     theme_bw() + # задание темы
     scale_x_log10() + # билогарифмический масштаб
     scale_y_log10() 
@@ -236,7 +242,8 @@ SNmany <- function(files, names = files) {
   ggplot(df1, aes(x = N, y = S, col = sp)) +
     geom_line() + # отрисовка линии
     geom_point() + # построение точек
-    labs(x = "N", y = "S", col = 'Файл', title = 'Степенная зависимость накопления видового богатства S от объема выборки N') + # подписи осей
+    labs(x = "N", y = "S", col = 'Файл', 
+         title = 'Степенная зависимость накопления видового богатства S от объема выборки N') + # подписи осей
     theme_bw() + # задание темы
     scale_x_log10() + # билогарифмический масштаб
     scale_y_log10() 
@@ -245,8 +252,9 @@ SNmany <- function(files, names = files) {
 }
 
 # Пример
-files <- c('Input data/Осинники Средний Урал 2.xlsx', 'Input data/Elnik_sum.xls', 'Input data/Lug_sum.xls', 
-          'Input data/P7-KP_bereznyak_ne_polny.xlsx', 'Input data/Korennye_Sbr_yag.xlsx', 'Input data/Korennye_Srtr.xlsx')
+files <- c('Input data/Осинники Средний Урал 2.xlsx', 'Input data/Elnik_sum.xls', 
+           'Input data/Lug_sum.xls', 'Input data/P7-KP_bereznyak_ne_polny.xlsx', 
+           'Input data/Korennye_Sbr_yag.xlsx', 'Input data/Korennye_Srtr.xlsx')
 names <- c('Осинники Средний Урал', 'Ельники', 'Луга', 
            'Березняк', 'Коренные СБР', 'Коренные СРТР')
 SNmany(files, names)
